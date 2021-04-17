@@ -17,7 +17,7 @@ from grocery_api.schemas.grocery_schema import GrocerySchema
 from grocery_api.resources.product_resource import ProductResource, PRODUCT_ENDPOINT
 from grocery_api.resources.vendor_resource import VendorResource, VENDOR_ENDPOINT
 from grocery_api.resources.shop_resource import ShopResource, SHOP_ENDPOINT
-from grocery_api.resources.grocery_resource import GroceryResource, GROCERY_ENDPOINT
+from grocery_api.resources.grocery_resource import GroceryResource, GroceryByProductNameResource, GROCERY_ENDPOINT
 
 def create_app(db_location):
     # Init app
@@ -34,7 +34,8 @@ def create_app(db_location):
     api.add_resource(ProductResource, PRODUCT_ENDPOINT, f"{PRODUCT_ENDPOINT}/<id>")
     api.add_resource(VendorResource, VENDOR_ENDPOINT, f"{VENDOR_ENDPOINT}/<id>")
     api.add_resource(ShopResource, SHOP_ENDPOINT, f"{SHOP_ENDPOINT}/<id>")
-    api.add_resource(GroceryResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<id>")
+    api.add_resource(GroceryResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<int:id>")
+    api.add_resource(GroceryByProductNameResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<string:name>")
 
     return app
 

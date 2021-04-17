@@ -6,12 +6,26 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from grocery_api.database import db
 from grocery_api.models.grocery import Grocery
+from grocery_api.models.product import Product
 from grocery_api.schemas.grocery_schema import GrocerySchema
 
 
 GROCERY_ENDPOINT = "/api/grocery"
 #logger = logging.getLogger(__name__)
 
+class GroceryByProductNameResource(Resource):
+    def get(self, name):
+        grocery = db.session.query(Grocery).join(Product).filter(Product.name == name).order_by(Grocery.shop_id).all()
+        grocerys_json = GrocerySchema(many=True).dump(grocery)
+        db.session.remove()
+        db.engine.dispose()
+
+        if not grocerys_json:
+            #raise NoResultFound()
+            abort(404, message=f"Product {name} not found")
+
+        #logger.info(f"Product retrieved from database {product_json}")
+        return grocerys_json, 200
 
 class GroceryResource(Resource):
     def get(self, id=None):

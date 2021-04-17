@@ -8,7 +8,6 @@ from grocery_api.database import db
 from grocery_api.models.product import Product
 from grocery_api.schemas.product_schema import ProductSchema
 
-
 PRODUCT_ENDPOINT = "/api/product"
 #logger = logging.getLogger(__name__)
 
