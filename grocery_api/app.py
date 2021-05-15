@@ -5,7 +5,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from flask import Flask
 from flask_restful import Api
 from grocery_api.constants import PROJECT_ROOT
-from database import db, GROCERY_DATABASE
+from database import GROCERY_DATABASE, db_session
 from grocery_api.models.product import Product
 from grocery_api.models.vendor import Vendor
 from grocery_api.models.shop import Shop
@@ -23,12 +23,6 @@ def create_app(db_location):
     # Init app
     app = Flask(__name__)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_location
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    #Init db
-    db.init_app(app)
-
     api = Api(app)
 
     api.add_resource(ProductResource, PRODUCT_ENDPOINT, f"{PRODUCT_ENDPOINT}/<id>")
@@ -36,6 +30,10 @@ def create_app(db_location):
     api.add_resource(ShopResource, SHOP_ENDPOINT, f"{SHOP_ENDPOINT}/<id>")
     api.add_resource(GroceryResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<int:id>")
     api.add_resource(GroceryByProductNameResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<string:name>")
+
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db_session.remove()
 
     return app
 
