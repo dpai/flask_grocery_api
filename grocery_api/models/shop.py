@@ -1,11 +1,13 @@
-from grocery_api.database import db
+from grocery_api.database import Base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship, backref
 
-class Shop(db.Model):
+class Shop(Base):
     __tablename__ = 'shops'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    shop_name = db.Column(db.String(100))
-    location = db.Column(db.String(100))
-    groceries = db.relationship('Grocery', backref=db.backref('shop'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    shop_name = Column(String(100))
+    location = Column(String(100))
+    groceries = relationship('Grocery', backref=backref('shop'))
 
     def __init__(self, name, location):
         self.shop_name = name
