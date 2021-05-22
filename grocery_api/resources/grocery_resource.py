@@ -1,39 +1,60 @@
 #import logging
 
-from flask_restful import Resource, abort
+from flask_restful import Resource, abort, request
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-
-from grocery_api.database import db
+from grocery_api.database import db_session
 from grocery_api.models.grocery import Grocery
 from grocery_api.models.product import Product
+from grocery_api.models.vendor import Vendor
 from grocery_api.schemas.grocery_schema import GrocerySchema
 
 
-GROCERY_ENDPOINT = "/api/grocery"
+GROCERY_ENDPOINT = "/api/v1/groceries"
 #logger = logging.getLogger(__name__)
 
 class GroceryByProductNameResource(Resource):
-    def get(self, name):
-        grocery = db.session.query(Grocery).join(Product).filter(Product.name == name).order_by(Grocery.shop_id).all()
-        grocerys_json = GrocerySchema(many=True).dump(grocery)
-        db.session.remove()
-        db.engine.dispose()
+    def get(self, product_name):
+        """
+        GroceryByProductNameResource GET method. Retrieves the grocery by product name if found in the 
+        database. If a paramater arugment vendor_name is provided, will filter the grocery by that name
+        :param product_name: Grocery to retrieve with name product_name
+        :return: Grocery, 200 HTTP status code
+        """
+        vendor_name = request.args.get("vendor_name")
 
-        if not grocerys_json:
-            #raise NoResultFound()
-            abort(404, message=f"Product {name} not found")
+        try:
+            grocerys_json = self._filter_grocery_by_vendor(product_name, vendor_name)
+        except NoResultFound:
+            if vendor_name:
+                abort(404, message=f"Vendor {vendor_name} does not have {product_name}")
+            else:
+                abort(404, message=f"Product {product_name} not found")
 
         #logger.info(f"Product retrieved from database {product_json}")
         return grocerys_json, 200
 
+    def _filter_grocery_by_vendor(self, product_name, vendor_name):
+        if vendor_name:
+            grocery = db_session.query(Grocery).join(Product).join(Vendor).filter(Product.name == product_name).filter(Vendor.name==vendor_name).order_by(Grocery.shop_id).all()
+            grocerys_json = GrocerySchema(exclude=['id'], many=True).dump(grocery)
+        else:
+            grocery = db_session.query(Grocery).join(Product).filter(Product.name == product_name).order_by(Grocery.shop_id).all()
+            grocerys_json = GrocerySchema(exclude=['id'], many=True).dump(grocery)
+
+        db_session.remove()
+
+        if not grocerys_json:
+            raise NoResultFound();
+
+        return grocerys_json
 class GroceryResource(Resource):
     def get(self, id=None):
         """
-        ProductResource GET method. Retrieves all products found in the database
-        or if id is provided retrieve the associated product id. 
-        :param id: Product ID to retrieve, this path parameter is optional
-        :return: Product, 200 HTTP status code
+        GroceryResource GET method. Retrieves all grocerys found in the database
+        or if id is provided retrieve the associated grocery id. 
+        :param id: Grocery ID to retrieve, this path parameter is optional
+        :return: Grocery, 200 HTTP status code
         """
         if not id:
             # logger.info(
@@ -50,8 +71,9 @@ class GroceryResource(Resource):
             abort(404, message="Grocery not found")
 
     def _get_grocery_by_id(self, grocery_id):
-        grocery = Grocery.query.filter_by(id=grocery_id).first()
-        grocery_json = GrocerySchema().dump(grocery)
+        grocery = db_session.query(Grocery).filter_by(id=grocery_id).first()
+        grocery_json = GrocerySchema(exclude=['id']).dump(grocery)
+        db_session.remove()
 
         if not grocery_json:
             raise NoResultFound()
@@ -60,28 +82,28 @@ class GroceryResource(Resource):
         return grocery_json
 
     def _get_all_groceries(self):
-        groceries = Grocery.query.all()
-
+        groceries = db_session.query(Grocery).all()
         groceries_json = GrocerySchema(many=True).dump(groceries)
+        db_session.remove()
 
         #logger.info("Players successfully retrieved.")
         return groceries_json
 
-    # def post(self):
-    #     """
-    #     PlayersResource POST method. Adds a new Player to the database.
-    #     :return: Player.player_id, 201 HTTP status code.
-    #     """
-    #     player = PlayerSchema().load(request.get_json())
+    def post(self):
+        """
+        GroceryResource POST method. Adds a new grocery to the database.
+        :return: Grocery.idid, 201 HTTP status code.
+        """
+        grocery = GrocerySchema().load(request.get_json())
 
-    #     try:
-    #         db.session.add(player)
-    #         db.session.commit()
-    #     except IntegrityError as e:
-    #         logger.warning(
-    #             f"Integrity Error, this team is already in the database. Error: {e}"
-    #         )
+        try:
+            db_session.add(grocery)
+            db_session.commit()
+        except IntegrityError as e:
+            # logger.warning(
+            #     f"Integrity Error, this grocery is already in the database. Error: {e}"
+            # )
 
-    #         abort(500, message="Unexpected Error!")
-    #     else:
-    #         return player.player_id, 201
+            abort(500, message="Unexpected Error!")
+        else:
+            return grocery.id, 201

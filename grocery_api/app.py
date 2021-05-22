@@ -23,7 +23,7 @@ def create_app(db_location):
     api.add_resource(ShopResource, SHOP_ENDPOINT, f"{SHOP_ENDPOINT}/<int:id>")
     api.add_resource(ShopByNameResource, SHOP_ENDPOINT, f"{SHOP_ENDPOINT}/<string:shop_name>")
     api.add_resource(GroceryResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<int:id>")
-    api.add_resource(GroceryByProductNameResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<string:name>")
+    api.add_resource(GroceryByProductNameResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<string:product_name>")
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
