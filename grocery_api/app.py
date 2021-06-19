@@ -4,15 +4,16 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from flask import Flask
 from flask_restful import Api
-from grocery_api.database import GROCERY_DATABASE, db_session
+from grocery_api.database import db_session
 from grocery_api.resources.product_resource import ProductResource, ProductByNameResource, PRODUCT_ENDPOINT
 from grocery_api.resources.vendor_resource import VendorResource, VendorByNameResource, VENDOR_ENDPOINT
 from grocery_api.resources.shop_resource import ShopResource, ShopByNameResource, SHOP_ENDPOINT
 from grocery_api.resources.grocery_resource import GroceryResource, GroceryByProductNameResource, GROCERY_ENDPOINT
 
-def create_app(db_location):
+def create_app(config_object=None):
     # Init app
     app = Flask(__name__)
+    app.config.from_object(config_object)
 
     api = Api(app)
 
@@ -33,5 +34,5 @@ def create_app(db_location):
 
 # Run server
 if __name__ == '__main__':
-    app = create_app(GROCERY_DATABASE)
-    app.run(debug=True)
+    app = create_app()
+    app.run()

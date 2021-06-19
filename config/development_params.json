@@ -1,0 +1,8 @@
+
+{
+    "ID": "Development",
+    "FLASK_CONFIG": "config.DevelopmentConfig",
+    "DB_SERVER": "127.0.0.1",
+    "DB_NAME": "grocery_db",
+    "DB_USER": "darshan"
+}
