@@ -31,8 +31,3 @@ def create_app(config_object=None):
         db_session.remove()
 
     return app
-
-# Run server
-if __name__ == '__main__':
-    app = create_app()
-    app.run()

@@ -1,4 +1,3 @@
-
 import sys
 import os
 from pathlib import Path
@@ -14,6 +13,7 @@ else:
 if run_config.set_run_config_map(run_config_file) == 1:
     print(f"Error reading configuration file {run_config_file}.. exiting")
     exit(1)
+
 db_con_str = run_config.generate_database_string()
 #print(db_con_str)
 os.environ['DATABASE_URI'] = db_con_str
