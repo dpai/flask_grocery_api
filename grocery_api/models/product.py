@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship, backref
 
 class Product(Base):
     __tablename__ = "product"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(100))
     vendor_id = Column(Integer, ForeignKey('vendor.id'), primary_key=True )
     groceries = relationship('Grocery', backref=backref('product', lazy=False))
