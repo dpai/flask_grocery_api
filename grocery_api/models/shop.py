@@ -9,8 +9,8 @@ class Shop(Base):
     location = Column(String(100))
     groceries = relationship('Grocery', backref=backref('shop'))
 
-    def __init__(self, name, location):
-        self.shop_name = name
+    def __init__(self, shop_name, location):
+        self.shop_name = shop_name
         self.location = location
 
     def __repr__(self):

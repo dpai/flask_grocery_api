@@ -1,4 +1,5 @@
-from marshmallow import Schema
+from marshmallow import Schema, post_load, validates_schema, ValidationError
+from grocery_api.models import shop
 
 class ShopSchema(Schema):
     """
@@ -7,3 +8,14 @@ class ShopSchema(Schema):
     """
     class Meta:
         fields = ('id', 'shop_name', 'location')
+
+    @post_load
+    def make_shop(self, data, **kwargs):
+        return shop.Shop(**data)
+
+    @validates_schema
+    def validate_shop_name(self, data, **kwargs):
+        if data["shop_name"] in [""] :
+            raise ValidationError({"shop_name": ["Shop Name cannot be empty"]})
+        if data["location"] in [""] :
+            raise ValidationError({"location": ["Location cannot be empty"]})

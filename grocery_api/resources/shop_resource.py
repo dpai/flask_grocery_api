@@ -1,6 +1,7 @@
 #import logging
 
 from flask_restful import Resource, abort, request
+from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from grocery_api.models.shop import Shop
@@ -83,7 +84,10 @@ class ShopResource(Resource):
         ShopResource POST method. Adds a new Shop to the database.
         :return: Shop.id, 201 HTTP status code.
         """
-        shop = ShopSchema().load(request.get_json())
+        try:
+            shop = ShopSchema().load(request.get_json())
+        except ValidationError as e:
+            abort(500, message=e.messages)
 
         try:
             db_session.add(shop)
