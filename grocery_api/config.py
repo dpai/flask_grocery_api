@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 
 PROJECT_ROOT = Path(__file__).parent.parent
+GROCERY_TEST_DATABASE = 'grocery_test.db'
 
 class Config:
     DEBUG = False
