@@ -1,2 +1,3 @@
 grocery_api/secrets.py
-.vscode/settings.json
+.vscode/*
+Pipfile.lock
