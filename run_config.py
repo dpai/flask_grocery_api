@@ -1,4 +1,5 @@
 import json
+import secrets1
 
 DEVELOPMENT_PARAM_FILE = 'development_params.json' 
 
@@ -16,7 +17,7 @@ def generate_database_string():
     if run_conf_data["ID"] == "Development":
         db_con_str = f'mysql+pymysql://' \
                      f'{run_conf_data["DB_USER"]}:' \
-                     f'pai123@' \
+                     f'{secrets1.dbpass}@' \
                      f'{run_conf_data["DB_SERVER"]}/' \
                      f'{run_conf_data["DB_NAME"]}'
 

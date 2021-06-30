@@ -11,6 +11,8 @@ flask-restful = "*"
 
 [dev-packages]
 pytest = "*"
+pytest-sugar = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.8"
