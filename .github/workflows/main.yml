@@ -36,5 +36,5 @@ jobs:
       - name: Run tests
         run: |
           pipenv install --dev
-          python tests/loadtestdatabase.py
+          pipenv run tests/loadtestdatabase.py
           pipenv run pytest
