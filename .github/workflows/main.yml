@@ -32,9 +32,14 @@ jobs:
       # Install Pipenv
       - name: Install pipenv
         run: pip install pipenv
+      # Install Dev Packages
+      - name: Install Dev Packages
+        run: pipenv install --dev
+      # Load Test Database
+      - name: Load Test Database
+        working-directory: tests
+        run: pipenv run loadtestdatabase.py
       # Run Tests
       - name: Run tests
         run: |
-          pipenv install --dev
-          pipenv run ./flask_grocery_api/tests/loadtestdatabase.py
           pipenv run pytest
