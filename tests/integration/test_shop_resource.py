@@ -42,6 +42,18 @@ def test_post_one_shop_location_None(client):
     assert response.status_code == 500
     assert response.json["message"]["location"] == ['Field may not be null.']
 
-def test_get_single_player_not_found(client):
+def test_get_shop_not_found(client):
     response = client.get(f"{SHOP_ENDPOINT}/100")
+    assert response.status_code == 404
+
+def test_get_shop_name_not_found(client):
+    response = client.get(f"{SHOP_ENDPOINT}/Test100")
+    assert response.status_code == 404
+
+def test_delete_one_shop(client):
+    response = client.delete(f"{SHOP_ENDPOINT}/Test3")
+    assert response.status_code == 200
+
+def test_delete_one_shop_not_found(client):
+    response = client.delete(f"{SHOP_ENDPOINT}/Test3")
     assert response.status_code == 404

@@ -23,10 +23,38 @@ class ShopByNameResource(Resource):
         try:
             shop_json = self._get_shop_by_name(shop_name)
         except NoResultFound:
-            abort(404, message=f"Vendor {shop_name} not found")
+            abort(404, message=f"{shop_name} not found")
         
         #logger.info(f"Shop retrieved from database {shop_json}")
         return shop_json, 200
+
+    def delete(self, shop_name):
+        """
+        ShopByNameResource DELETE method. Delete the shop by name if found in the 
+        database. 
+        :param shop_name: Shop name to delete
+        :return: Shop, 200 HTTP status code
+        """
+
+        try:
+            shop_json = self._delete_shop_by_name(shop_name)
+        except NoResultFound:
+            abort(404, message=f"{shop_name} not found")
+        
+        #logger.info(f"Shop deleted from database {shop_json}")
+        return shop_json, 200
+
+
+    def _delete_shop_by_name(self, shop_name):
+        shop = db_session.query(Shop).filter(Shop.shop_name==shop_name).first()
+        shop_json = ShopSchema().dump(shop)
+
+        if not shop_json:
+            raise NoResultFound()
+        
+        db_session.delete(shop)
+        db_session.commit()
+        return shop_json
 
     def _get_shop_by_name(self, shop_name):
         shop = db_session.query(Shop).filter(Shop.shop_name==shop_name).first()
@@ -35,7 +63,7 @@ class ShopByNameResource(Resource):
         db_session.remove()
 
         if not shop_json:
-            raise NoResultFound();
+            raise NoResultFound()
 
         return shop_json
 class ShopResource(Resource):
