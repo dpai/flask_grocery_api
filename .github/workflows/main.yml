@@ -34,7 +34,7 @@ jobs:
         run: pip install pipenv
       # Run Tests
       - name: Run tests
-        working-directory: ${GITHUB_WORKSPACE}
+        working-directory: $GITHUB_WORKSPACE/flask_grocery_api
         run: |
           pipenv install --dev
           pipenv run tests/loadtestdatabase.py
