@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship, backref
 class Vendor(Base):
     __tablename__ = "vendor"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100))
+    name = Column(String(100), unique=True)
     products = relationship('Product', backref=backref('vendor'))
     groceries = relationship('Grocery', backref=backref('vendor'))
 
