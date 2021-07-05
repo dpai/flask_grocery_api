@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, validates_schema, ValidationError
 from grocery_api.models.vendor import Vendor
 
 class VendorSchema(Schema):
@@ -10,3 +10,12 @@ class VendorSchema(Schema):
         additional = ('id', 'name')
 
     products = fields.Pluck("ProductSchema", "name", many=True)
+
+    @post_load
+    def make_vendor(self, data, **kwargs):
+        return Vendor(**data)
+
+    @validates_schema
+    def validate_vendor_name(self, data, **kwargs):
+        if data["name"] in [""] :
+            raise ValidationError({"name": ["Vendor Name cannot be empty"]})

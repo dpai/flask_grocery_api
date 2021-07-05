@@ -1,7 +1,7 @@
 #import logging
 
-from flask import request
-from flask_restful import Resource, abort
+from flask_restful import Resource, abort, request
+from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from grocery_api.models.vendor import Vendor
@@ -36,6 +36,22 @@ class VendorByNameResource(Resource):
         #logger.info(f"Product retrieved from database {vendor_json}")
         return vendor_json, 200
 
+    def delete(self, vendor_name):
+        """
+        VendorByNameResource DELETE method. Delete the vendor by name if found in the 
+        database. 
+        :param vendor_name: Vendor name to delete
+        :return: Vendor, 200 HTTP status code
+        """
+
+        try:
+            vendor_json = self._delete_vendor_by_name(vendor_name)
+        except NoResultFound:
+            abort(404, message=f"{vendor_name} not found")
+        
+        #logger.info(f"Shop deleted from database {shop_json}")
+        return vendor_json, 200
+
     def _get_vendor_by_name(self, vendor_name, product_name):
         if not product_name:
             vendor = db_session.query(Vendor).filter(Vendor.name==vendor_name).first()
@@ -51,6 +67,18 @@ class VendorByNameResource(Resource):
             raise NoResultFound();
 
         return vendor_json
+
+    def _delete_vendor_by_name(self, vendor_name):
+        vendor = db_session.query(Vendor).filter(Vendor.name==vendor_name).first()
+        vendor_json = VendorSchema().dump(vendor)
+
+        if not vendor_json:
+            raise NoResultFound()
+        
+        db_session.delete(vendor)
+        db_session.commit()
+        return vendor_json
+
 class VendorResource(Resource):
     def get(self, id=None):
         """
@@ -73,6 +101,78 @@ class VendorResource(Resource):
         except NoResultFound:
             abort(404, message="Vendor not found")
 
+    def post(self):
+        """
+        VendorResource POST method. Adds a new Vendor to the database.
+        :return: Vendor.id, 201 HTTP status code.
+        """
+        try:
+            vendor = VendorSchema().load(request.get_json())
+        except ValidationError as e:
+            abort(500, message=e.messages)
+
+        try:
+            db_session.add(vendor)
+            db_session.commit()
+        except IntegrityError as e:
+            #logger.warning(
+            #    f"Integrity Error, this team is already in the database. Error: {e}"
+            #)
+
+            abort(500, message="Unexpected Error!")
+        else:
+            return vendor.id, 201
+
+    def delete(self, id=None):
+        """
+        VendorByNameResource DELETE method. Delete the vendor by id if found in the 
+        database. 
+        :param id: Vendor id to delete
+        :return: Shop, 200 HTTP status code
+        """
+
+        if not id:
+            abort(405, message="Method not allowed")
+
+        try:
+            vendor_json = self._delete_vendor_by_id(id)
+        except NoResultFound:
+            abort(404, message=f"Vendor not found")
+        
+        #logger.info(f"Shop deleted from database {shop_json}")
+        return vendor_json, 200
+
+    def put(self, id=None):
+        """
+        VendorResource PUT method. Updates Vendor to the database.
+        :return: Vendor.id, 201 HTTP status code.
+        """
+
+        if not id:
+            abort(405, message="Method not allowed")
+
+        data = request.get_json()
+
+        try:
+            vendor = VendorSchema().load(data)
+        except ValidationError as e:
+            abort(500, message=e.messages)
+        
+        vendor = db_session.query(Vendor).filter(Vendor.id==id).first()
+
+        vendor.name = data["name"]
+
+        try:
+            db_session.commit()
+        except IntegrityError as e:
+            # logger.warning(
+            #     f"Integrity Error, this team is already in the database. Error: {e}"
+            # )
+
+            abort(500, message="Unexpected Error!")
+        else:
+            return vendor.id, 200
+
     def _get_vendor_by_id(self, vendor_id):
         vendor = db_session.query(Vendor).filter_by(id=vendor_id).first()
         vendor_json = VendorSchema().dump(vendor)
@@ -92,21 +192,13 @@ class VendorResource(Resource):
         #logger.info("Vendors successfully retrieved.")
         return vendors_json
 
-    def post(self):
-        """
-        VendorResource POST method. Adds a new Vendor to the database.
-        :return: Vendor.id, 201 HTTP status code.
-        """
-        vendor = VendorSchema().load(request.get_json())
+    def _delete_vendor_by_id(self, vendor_id):
+        vendor = db_session.query(Vendor).filter(Vendor.id==vendor_id).first()
+        vendor_json = VendorSchema().dump(vendor)
 
-        try:
-            db_session.add(vendor)
-            db_session.commit()
-        except IntegrityError as e:
-            #logger.warning(
-            #    f"Integrity Error, this team is already in the database. Error: {e}"
-            #)
-
-            abort(500, message="Unexpected Error!")
-        else:
-            return vendor.id, 201
+        if not vendor_json:
+            raise NoResultFound()
+        
+        db_session.delete(vendor)
+        db_session.commit()
+        return vendor_json
