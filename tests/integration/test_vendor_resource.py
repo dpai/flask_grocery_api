@@ -10,9 +10,11 @@ def test_get_one_vendor(client):
     assert response.status_code == 200
     assert len(response.json) == 3
     assert response.json["name"] == "Vendor1"
+    assert len(response.json["products"]) == 3
+    assert response.json["products"] == ["Product1", "Product2", "Product3"]
 
 def test_post_one_vendor(client):
-    new_vendor_json = {"name": "Vendor2"}
+    new_vendor_json = {"name": "Vendor3"}
     response = client.post(f"{VENDOR_ENDPOINT}", json=new_vendor_json)
     assert response.status_code == 201
     assert response.json == 3
@@ -28,6 +30,13 @@ def test_post_one_vendor_name_None(client):
     response = client.post(f"{VENDOR_ENDPOINT}", json=new_vendor_json)
     assert response.status_code == 500
     assert response.json["message"]["name"] == ['Field may not be null.']
+
+
+def test_post_one_vendor_duplicate(client):
+    new_vendor_json = {"name": "Vendor2"}
+    response = client.post(f"{VENDOR_ENDPOINT}", json=new_vendor_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
 
 def test_get_vendor_not_found(client):
     response = client.get(f"{VENDOR_ENDPOINT}/100")
