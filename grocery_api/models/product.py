@@ -4,14 +4,17 @@ from sqlalchemy.orm import relationship, backref
 
 class Product(Base):
     __tablename__ = "product"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True) ## Ideally need autoincrement=True, but sqlite does not like it.
     name = Column(String(100))
-    vendor_id = Column(Integer, ForeignKey('vendor.id'), primary_key=True )
+    vendor_id = Column(Integer, ForeignKey('vendor.id'), primary_key=True)
     groceries = relationship('Grocery', backref=backref('product', lazy=False))
 
-    def __init__(self, name, vendor_id):
+    def __init__(self, name, vendor_id, id=None):
         self.name = name
         self.vendor_id = vendor_id
+        ## This hack is to enable test with sqlite - Composite primary keys cannot be autoincremented 
+        if id is not None:
+            self.id = id
 
     def __repr__(self):
         return (

@@ -1,7 +1,7 @@
 #import logging
 
-from flask import request
-from flask_restful import Resource, abort
+from flask_restful import Resource, abort, request
+from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from grocery_api.models.product import Product
@@ -72,6 +72,28 @@ class ProductResource(Resource):
         except NoResultFound:
             abort(404, message="Product not found")
 
+    def post(self):
+        """
+        ProductResource POST method. Adds a new Product to the database.
+        :return: Product.id, 201 HTTP status code.
+        """
+        try:
+            product = ProductSchema().load(request.get_json())
+        except ValidationError as e:
+            abort(500, message=e.messages)
+
+        try:
+            db_session.add(product)
+            db_session.commit()
+        except IntegrityError as e:
+            # logger.warning(
+            #     f"Integrity Error, this team is already in the database. Error: {e}"
+            # )
+
+            abort(500, message="Unexpected Error!")
+        else:
+            return product.id, 201
+
     def _get_product_by_id(self, product_id):
         product = db_session.query(Product).filter_by(id=product_id).first()
         product_json = ProductSchema().dump(product)
@@ -90,22 +112,3 @@ class ProductResource(Resource):
 
         #logger.info("Players successfully retrieved.")
         return products_json
-
-    def post(self):
-        """
-        PlayersResource POST method. Adds a new Player to the database.
-        :return: Player.player_id, 201 HTTP status code.
-        """
-        product = ProductSchema().load(request.get_json())
-
-        try:
-            db_session.add(product)
-            db_session.commit()
-        except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, this team is already in the database. Error: {e}"
-            # )
-
-            abort(500, message="Unexpected Error!")
-        else:
-            return product.id, 201

@@ -6,7 +6,7 @@ class ProductSchema(Schema):
     Marshmallow schema used for loading/dumping Products
     """
     class Meta:
-        fields = ('name', 'vendor_id', 'vendor.name')
+        fields = ('id', 'name', 'vendor_id', 'vendor.name')
 
     @post_load
     def make_product(self, data, **kwargs):
