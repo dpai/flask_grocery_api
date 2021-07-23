@@ -125,7 +125,7 @@ class VendorResource(Resource):
 
     def delete(self, id=None):
         """
-        VendorByNameResource DELETE method. Delete the vendor by id if found in the 
+        VendorResource DELETE method. Delete the vendor by id if found in the 
         database. 
         :param id: Vendor id to delete
         :return: Shop, 200 HTTP status code

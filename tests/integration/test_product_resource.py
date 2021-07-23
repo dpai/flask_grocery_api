@@ -26,7 +26,15 @@ def test_post_one_product_empty_name(client):
     assert response.json["message"]["name"] == ['Product Name cannot be empty']
 
 def test_post_one_product_nonexistent_vendor(client):
-    new_product_json = {"name": "Product5", "vendor_id": "10", "id": "6"}
+    new_product_json = {"name": "Product6", "vendor_id": "10", "id": "6"}
     response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
     assert response.status_code == 500
     assert response.json["message"] == "Unexpected Error!"
+
+def test_delete_one_product_by_id(client):
+    new_product_json = {"name": "Product7", "vendor_id": "2", "id": "7"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    assert response.json == 7
+    response = client.delete(f"{PRODUCT_ENDPOINT}/{response.json}")
+    assert response.status_code == 200

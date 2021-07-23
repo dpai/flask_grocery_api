@@ -94,6 +94,25 @@ class ProductResource(Resource):
         else:
             return product.id, 201
 
+    def delete(self, id=None):
+        """
+        ProductResource DELETE method. Delete the product by id if found in the 
+        database. 
+        :param id: Product id to delete
+        :return: Shop, 200 HTTP status code
+        """
+
+        if not id:
+            abort(405, message="Method not allowed")
+
+        try:
+            product_json = self._delete_product_by_id(id)
+        except NoResultFound:
+            abort(404, message=f"Product not found")
+        
+        #logger.info(f"Shop deleted from database {shop_json}")
+        return product_json, 200
+
     def _get_product_by_id(self, product_id):
         product = db_session.query(Product).filter_by(id=product_id).first()
         product_json = ProductSchema().dump(product)
@@ -112,3 +131,14 @@ class ProductResource(Resource):
 
         #logger.info("Players successfully retrieved.")
         return products_json
+
+    def _delete_product_by_id(self, product_id):
+        product = db_session.query(Product).filter(Product.id==product_id).first()
+        product_json = ProductSchema().dump(product)
+
+        if not product_json:
+            raise NoResultFound()
+        
+        db_session.delete(product)
+        db_session.commit()
+        return product_json
