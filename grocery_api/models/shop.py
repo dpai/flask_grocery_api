@@ -5,8 +5,8 @@ from sqlalchemy.orm import relationship, backref
 class Shop(Base):
     __tablename__ = 'shops'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    shop_name = Column(String(100))
-    location = Column(String(100))
+    shop_name = Column(String(100), nullable=False)
+    location = Column(String(100), nullable=False)
     groceries = relationship('Grocery', backref=backref('shop'))
 
     def __init__(self, shop_name, location):
