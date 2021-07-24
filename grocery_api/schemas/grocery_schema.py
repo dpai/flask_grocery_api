@@ -7,4 +7,4 @@ class GrocerySchema(Schema):
     Marshmallow schema used for loading/dumping Players
     """
     class Meta:
-        fields = ('id', 'product.name', 'vendor.name', 'shop.shop_name', 'price', 'weight_in_pounds', 'date_bought')
+        fields = ('id', 'product.name', 'product.vendor.name', 'shop.shop_name', 'price', 'weight_in_pounds', 'date_bought')
