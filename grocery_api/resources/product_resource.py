@@ -34,6 +34,22 @@ class ProductByNameResource(Resource):
         
         #logger.info(f"Product retrieved from database {product_json}")
         return products_json, 200
+    
+    def delete(self, product_name):
+        """
+        ProductByNameResource DELETE method. Delete the product by name if found in the 
+        database. 
+        :param product_name: Product name to delete
+        :return: Product, 200 HTTP status code
+        """
+
+        try:
+            product_json = self._delete_product_by_name(product_name)
+        except NoResultFound:
+            abort(404, message=f"{product_name} not found")
+        
+        #logger.info(f"product deleted from database {product_json}")
+        return product_json, 200
 
     def _get_product_by_name(self, product_name, vendor_name):
         if not vendor_name:
@@ -49,6 +65,17 @@ class ProductByNameResource(Resource):
             raise NoResultFound();
 
         return products_json
+
+    def _delete_product_by_name(self, product_name):
+        product = db_session.query(Product).filter(Product.name==product_name).first()
+        product_json = ProductSchema().dump(product)
+
+        if not product_json:
+            raise NoResultFound()
+        
+        db_session.delete(product)
+        db_session.commit()
+        return product_json
 
 class ProductResource(Resource):
     def get(self, id=None):

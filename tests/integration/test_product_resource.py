@@ -38,3 +38,22 @@ def test_delete_one_product_by_id(client):
     assert response.json == 7
     response = client.delete(f"{PRODUCT_ENDPOINT}/{response.json}")
     assert response.status_code == 200
+
+def test_delete_one_product_id_not_found(client):
+    response = client.delete(f"{PRODUCT_ENDPOINT}/7")
+    assert response.status_code == 404
+
+def test_delete_one_product_by_name(client):
+    new_product_json = {"name": "Product8", "vendor_id": "2", "id": "8"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    response = client.delete(f"{PRODUCT_ENDPOINT}/Product8")
+    assert response.status_code == 200
+
+def test_delete_one_product_by_name_not_found(client):
+    response = client.delete(f"{PRODUCT_ENDPOINT}/Product8")
+    assert response.status_code == 404
+
+def test_delete_one_product_wrong_URI(client):
+    response = client.delete(f"{PRODUCT_ENDPOINT}")
+    assert response.status_code == 405
