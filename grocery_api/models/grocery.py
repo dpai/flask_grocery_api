@@ -1,19 +1,23 @@
+from sqlalchemy.sql.expression import null
 from grocery_api.database import Base
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.types import Date
 from sqlalchemy.orm import relationship
 
 class Grocery(Base):
     __tablename__ = "groceries"
+    __table_args__ = (
+        ForeignKeyConstraint(['product_id', 'vendor_id'], ['product.id', 'product.vendor_id'], name='fk_productvendor'),
+    )
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    shop_id = Column(Integer, ForeignKey('shops.id'))
-    product_id = Column(Integer, ForeignKey('product.id'))
-    vendor_id = Column(Integer, ForeignKey('vendor.id'))
-    price = Column(Float)
-    weight_in_pounds = Column(Float)
-    date_bought = Column(Date())
-    quantity = Column(Integer)
+    shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False)
+    product_id = Column(Integer, nullable=False)
+    vendor_id = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    weight_in_pounds = Column(Float, nullable=False)
+    date_bought = Column(Date(), nullable=False)
+    quantity = Column(Integer, nullable=False, default=1)
 
     def __init__(self, shop_id, product_id, vendor_id, price, weight_in_pounds, quantity):
         self.shop_id = shop_id
