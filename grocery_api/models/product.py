@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship, backref
 
 class Product(Base):
     __tablename__ = "product"
-    id = Column(Integer, primary_key=True) ## Ideally need autoincrement=True, but sqlite does not like it.
+    id = Column(Integer, primary_key=True, unique=True) ## Ideally need autoincrement=True, but sqlite does not like it.
     name = Column(String(100))
     vendor_id = Column(Integer, ForeignKey('vendor.id'), primary_key=True)
     groceries = relationship('Grocery', backref=backref('product', lazy=False))
