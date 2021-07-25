@@ -200,5 +200,13 @@ class VendorResource(Resource):
             raise NoResultFound()
         
         db_session.delete(vendor)
-        db_session.commit()
+        try:
+            db_session.commit()
+        except IntegrityError as e:
+            # logger.warning(
+            #     f"Integrity Error, Cannot Delete. Error: {e}"
+            # )
+
+            abort(500, message="Unexpected Error!")
+
         return vendor_json

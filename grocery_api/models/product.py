@@ -7,7 +7,7 @@ class Product(Base):
     __tablename__ = "product"
     id = Column(Integer, primary_key=True, unique=True) ## Ideally need autoincrement=True, but sqlite does not like it.
     name = Column(String(100), nullable=False)
-    vendor_id = Column(Integer, ForeignKey('vendor.id'), primary_key=True)
+    vendor_id = Column(Integer, ForeignKey('vendor.id', ondelete='RESTRICT'), primary_key=True)
     groceries = relationship('Grocery', backref=backref('product', lazy=False))
 
     def __init__(self, name, vendor_id, id=None):

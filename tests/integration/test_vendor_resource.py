@@ -82,3 +82,7 @@ def test_put_by_vendor_id(client):
     response = client.get(f"{VENDOR_ENDPOINT}/{response.json}")
     assert response.status_code == 200
     assert response.json["name"] == "Vendor21"
+
+def test_delete_vendor_with_product_reference(client):
+    response = client.delete(f"{VENDOR_ENDPOINT}/2")
+    assert response.status_code == 500
