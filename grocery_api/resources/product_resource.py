@@ -140,6 +140,38 @@ class ProductResource(Resource):
         #logger.info(f"Shop deleted from database {shop_json}")
         return product_json, 200
 
+    def put(self, id=None):
+        """
+        ProductResource PUT method. Updates Product to the database.
+        :return: Product.id, 201 HTTP status code.
+        """
+
+        if not id:
+            abort(405, message="Method not allowed")
+
+        data = request.get_json()
+
+        try:
+            product = ProductSchema().load(data)
+        except ValidationError as e:
+            abort(500, message=e.messages)
+        
+        product = db_session.query(Product).filter(Product.id==id).first()
+
+        product.name = data["name"]
+        product.vendor_id = data["vendor_id"]
+
+        try:
+            db_session.commit()
+        except IntegrityError as e:
+            # logger.warning(
+            #     f"Integrity Error, Constraints violated, Error: {e}"
+            # )
+
+            abort(500, message="Unexpected Error!")
+        else:
+            return product.id, 200
+
     def _get_product_by_id(self, product_id):
         product = db_session.query(Product).filter_by(id=product_id).first()
         product_json = ProductSchema().dump(product)

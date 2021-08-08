@@ -57,3 +57,23 @@ def test_delete_one_product_by_name_not_found(client):
 def test_delete_one_product_wrong_URI(client):
     response = client.delete(f"{PRODUCT_ENDPOINT}")
     assert response.status_code == 405
+
+def test_put_by_product_id(client):
+    new_product_json = {"name": "Product20", "vendor_id": "2", "id": "9"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"name": "Product21", "vendor_id": "2", "id": "9"}
+    response = client.put(f"{PRODUCT_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 200
+    response = client.get(f"{PRODUCT_ENDPOINT}/{response.json}")
+    assert response.status_code == 200
+    assert response.json["name"] == "Product21"
+
+def test_put_by_product_id_no_vendor(client):
+    new_product_json = {"name": "Product30", "vendor_id": "2", "id": "10"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"name": "Product30", "vendor_id": "10", "id": "10"}
+    response = client.put(f"{PRODUCT_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
