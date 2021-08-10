@@ -10,8 +10,8 @@ def test_get_one_vendor(client):
     assert response.status_code == 200
     assert len(response.json) == 3
     assert response.json["name"] == "Vendor1"
-    assert len(response.json["products"]) == 3
-    assert response.json["products"] == ["Product1", "Product2", "Product3"]
+    assert len(response.json["products"]) == 4
+    assert response.json["products"] == ["Product1", "Product2", "Product3", "Product21"]
 
 def test_post_one_vendor(client):
     new_vendor_json = {"name": "Vendor3"}
@@ -82,6 +82,11 @@ def test_put_by_vendor_id(client):
     response = client.get(f"{VENDOR_ENDPOINT}/{response.json}")
     assert response.status_code == 200
     assert response.json["name"] == "Vendor21"
+
+def test_put_no_vendor_id(client):
+    new_vendor_json = {"name": "Vendor21"}
+    response = client.put(f"{VENDOR_ENDPOINT}", json=new_vendor_json)
+    assert response.status_code == 405
 
 def test_delete_vendor_with_product_reference(client):
     response = client.delete(f"{VENDOR_ENDPOINT}/2")

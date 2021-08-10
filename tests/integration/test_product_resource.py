@@ -62,12 +62,13 @@ def test_put_by_product_id(client):
     new_product_json = {"name": "Product20", "vendor_id": "2", "id": "9"}
     response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
     assert response.status_code == 201
-    update_product_json = {"name": "Product21", "vendor_id": "2", "id": "9"}
+    update_product_json = {"name": "Product21", "vendor_id": "1", "id": "9"}
     response = client.put(f"{PRODUCT_ENDPOINT}/{response.json}", json=update_product_json)
     assert response.status_code == 200
     response = client.get(f"{PRODUCT_ENDPOINT}/{response.json}")
     assert response.status_code == 200
     assert response.json["name"] == "Product21"
+    assert response.json["vendor_id"] == 1
 
 def test_put_by_product_id_no_vendor(client):
     new_product_json = {"name": "Product30", "vendor_id": "2", "id": "10"}
@@ -77,3 +78,8 @@ def test_put_by_product_id_no_vendor(client):
     response = client.put(f"{PRODUCT_ENDPOINT}/{response.json}", json=update_product_json)
     assert response.status_code == 500
     assert response.json["message"] == "Unexpected Error!"
+
+def test_put_with_no_product_id(client):
+    update_product_json = {"name": "Product31", "vendor_id": "2", "id": "11"}
+    response = client.put(f"{PRODUCT_ENDPOINT}", json=update_product_json)
+    assert response.status_code == 405
