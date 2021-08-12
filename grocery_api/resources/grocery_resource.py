@@ -1,6 +1,7 @@
 #import logging
 
 from flask_restful import Resource, abort, request
+from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from grocery_api.database import db_session
@@ -72,7 +73,7 @@ class GroceryResource(Resource):
 
     def _get_grocery_by_id(self, grocery_id):
         grocery = db_session.query(Grocery).filter_by(id=grocery_id).first()
-        grocery_json = GrocerySchema(exclude=['id']).dump(grocery)
+        grocery_json = GrocerySchema(exclude=['id', 'shop_id', 'product_id', 'vendor_id']).dump(grocery)
         db_session.remove()
 
         if not grocery_json:
@@ -94,7 +95,10 @@ class GroceryResource(Resource):
         GroceryResource POST method. Adds a new grocery to the database.
         :return: Grocery.idid, 201 HTTP status code.
         """
-        grocery = GrocerySchema().load(request.get_json())
+        try:
+            grocery = GrocerySchema().load(request.get_json())
+        except ValidationError as e:
+            abort(500, message=e.messages)
 
         try:
             db_session.add(grocery)

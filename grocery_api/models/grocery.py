@@ -4,6 +4,7 @@ from grocery_api.database import Base
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.types import Date
 from sqlalchemy.orm import relationship
+import datetime
 
 class Grocery(Base):
     __tablename__ = "groceries"
@@ -26,7 +27,7 @@ class Grocery(Base):
         self.vendor_id = vendor_id
         self.price = price
         self.weight_in_pounds = weight_in_pounds
-        self.date_bought = date_bought
+        self.date_bought = datetime.datetime.fromisoformat(date_bought)
         self.quantity = quantity
 
     def __repr__(self):
