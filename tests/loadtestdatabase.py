@@ -9,6 +9,10 @@ from grocery_api.database import SessionLocal, engine, Base
 from grocery_api.schemas import shop_schema, vendor_schema, product_schema, grocery_schema
 import datetime
 
+# https://stackoverflow.com/a/67228228/3389943
+from sqlalchemy import event
+event.listen(engine, 'connect', lambda c, _: c.execute('pragma foreign_keys=on'))
+
 db = SessionLocal()
 
 Base.metadata.create_all(bind=engine)
@@ -42,10 +46,13 @@ product3 = product_schema.ProductSchema().load({"name": "Product3", "vendor_id":
 product3.id = 3
 product4 = product_schema.ProductSchema().load({"name": "Product4", "vendor_id": "2"})
 product4.id = 4
+product5 = product_schema.ProductSchema().load({"name": "Product1", "vendor_id": "2"})
+product5.id = 5
 db.add(product1)
 db.add(product2)
 db.add(product3)
 db.add(product4)
+db.add(product5)
 db.commit()
 
 ## Add groceries
@@ -55,12 +62,14 @@ grocery3 = grocery.Grocery(1, 4, 2, 4.99, 2, '2021-01-06', 1)
 grocery4 = grocery.Grocery(2, 3, 1, 2.99, 2, '2020-12-09', 1)
 grocery5 = grocery.Grocery(2, 2, 1, 1.99, 3, '2020-12-09', 2)
 grocery6 = grocery.Grocery(1, 2, 1, 5.99, 2, '2020-10-01', 1)
+grocery7 = grocery.Grocery(1, 5, 2, 3.99, 1, '2021-08-01', 1)
 db.add(grocery1)
 db.add(grocery2)
 db.add(grocery3)
 db.add(grocery4)
 db.add(grocery5)
 db.add(grocery6)
+db.add(grocery7)
 db.commit()
 
 db.close()
