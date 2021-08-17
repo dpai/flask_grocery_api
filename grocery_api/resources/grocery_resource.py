@@ -46,7 +46,7 @@ class GroceryByProductNameResource(Resource):
         db_session.remove()
 
         if not grocerys_json:
-            raise NoResultFound();
+            raise NoResultFound()
 
         return grocerys_json
 class GroceryResource(Resource):
@@ -71,25 +71,6 @@ class GroceryResource(Resource):
         except NoResultFound:
             abort(404, message="Grocery not found")
 
-    def _get_grocery_by_id(self, grocery_id):
-        grocery = db_session.query(Grocery).filter_by(id=grocery_id).first()
-        grocery_json = GrocerySchema(exclude=['id', 'shop_id', 'product_id', 'vendor_id']).dump(grocery)
-        db_session.remove()
-
-        if not grocery_json:
-            raise NoResultFound()
-
-        #logger.info(f"Product retrieved from database {product_json}")
-        return grocery_json
-
-    def _get_all_groceries(self):
-        groceries = db_session.query(Grocery).all()
-        groceries_json = GrocerySchema(many=True).dump(groceries)
-        db_session.remove()
-
-        #logger.info("Players successfully retrieved.")
-        return groceries_json
-
     def post(self):
         """
         GroceryResource POST method. Adds a new grocery to the database.
@@ -111,3 +92,52 @@ class GroceryResource(Resource):
             abort(500, message="Unexpected Error!")
         else:
             return grocery.id, 201
+
+    def delete(self, id=None):
+        """
+        GroceryResource DELETE method. Delete the grocery by id if found in the 
+        database. 
+        :param id: Grocery id to delete
+        :return: Shop, 200 HTTP status code
+        """
+
+        if not id:
+            abort(405, message="Method not allowed")
+
+        try:
+            grocery_json = self._delete_grocery_by_id(id)
+        except NoResultFound:
+            abort(404, message=f"Grocery not found")
+        
+        #logger.info(f"Shop deleted from database {shop_json}")
+        return grocery_json, 200
+
+    def _get_grocery_by_id(self, grocery_id):
+        grocery = db_session.query(Grocery).filter_by(id=grocery_id).first()
+        grocery_json = GrocerySchema(exclude=['id', 'shop_id', 'product_id', 'vendor_id']).dump(grocery)
+        db_session.remove()
+
+        if not grocery_json:
+            raise NoResultFound()
+
+        #logger.info(f"Product retrieved from database {product_json}")
+        return grocery_json
+
+    def _get_all_groceries(self):
+        groceries = db_session.query(Grocery).all()
+        groceries_json = GrocerySchema(many=True).dump(groceries)
+        db_session.remove()
+
+        #logger.info("Players successfully retrieved.")
+        return groceries_json
+
+    def _delete_grocery_by_id(self, grocery_id):
+        grocery = db_session.query(Grocery).filter(Grocery.id==grocery_id).first()
+        grocery_json = GrocerySchema().dump(grocery)
+
+        if not grocery_json:
+            raise NoResultFound()
+        
+        db_session.delete(grocery)
+        db_session.commit()
+        return grocery_json

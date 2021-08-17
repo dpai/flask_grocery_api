@@ -3,7 +3,7 @@ from grocery_api.resources.grocery_resource import GROCERY_ENDPOINT
 def test_get_all_groceries(client):
     response = client.get(f"{GROCERY_ENDPOINT}")
     assert response.status_code == 200
-    assert len(response.json) == 6
+    assert len(response.json) == 7
 
 def test_get_one_grocery(client):
     response = client.get(f"{GROCERY_ENDPOINT}/1")
@@ -17,11 +17,21 @@ def test_get_one_grocery(client):
     assert response.json["weight_in_pounds"] == 1
     assert response.json["quantity"] == 1
 
+def test_get_grocery_by_product_name(client):
+    response = client.get(f"{GROCERY_ENDPOINT}/Product1")
+    assert response.status_code == 200
+    assert len(response.json) == 3
+
+def test_get_grocery_by_product_name_filter_vendor_name(client):
+    response = client.get(f"{GROCERY_ENDPOINT}/Product1", query_string={"vendor_name": "Vendor1"})
+    assert response.status_code == 200
+    assert len(response.json) == 2
+
 def test_post_one_grocery(client):
     new_grocery_json = {"shop_id": "1", "vendor_id": "1", "product_id": "1", "date_bought": "2021-08-30", "weight_in_pounds": "1", "quantity": "1", "price": "2.99"}
     response = client.post(f"{GROCERY_ENDPOINT}", json=new_grocery_json)
     assert response.status_code == 201
-    assert response.json == 7
+    assert response.json == 8
     response = client.get(f"{GROCERY_ENDPOINT}/{response.json}")
     assert response.json["date_bought"] == "2021-08-30"
 
