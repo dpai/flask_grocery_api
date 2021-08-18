@@ -9,6 +9,7 @@ from grocery_api.models.grocery import Grocery
 from grocery_api.models.product import Product
 from grocery_api.models.vendor import Vendor
 from grocery_api.schemas.grocery_schema import GrocerySchema
+import datetime
 
 
 GROCERY_ENDPOINT = "/api/v1/groceries"
@@ -112,9 +113,46 @@ class GroceryResource(Resource):
         #logger.info(f"Shop deleted from database {shop_json}")
         return grocery_json, 200
 
+    def put(self, id=None):
+        """
+        GroceryResource PUT method. Updates Grocery to the database.
+        :return: Grocery.id, 201 HTTP status code.
+        """
+
+        if not id:
+            abort(405, message="Method not allowed")
+
+        data = request.get_json()
+
+        try:
+            grocery = GrocerySchema().load(data)
+        except ValidationError as e:
+            abort(500, message=e.messages)
+        
+        grocery = db_session.query(Grocery).filter(Grocery.id==id).first()
+
+        grocery.product_id = data["product_id"]
+        grocery.vendor_id = data["vendor_id"]
+        grocery.price = data["price"]
+        grocery.quantity = data["quantity"]
+        grocery.weight_in_pounds = data["weight_in_pounds"]
+        grocery.date_bought = datetime.datetime.fromisoformat(data["date_bought"])
+        grocery.shop_id = data["shop_id"]  
+
+        try:
+            db_session.commit()
+        except IntegrityError as e:
+            # logger.warning(
+            #     f"Integrity Error, Constraints violated, Error: {e}"
+            # )
+
+            abort(500, message="Unexpected Error!")
+        else:
+            return grocery.id, 200
+
     def _get_grocery_by_id(self, grocery_id):
         grocery = db_session.query(Grocery).filter_by(id=grocery_id).first()
-        grocery_json = GrocerySchema(exclude=['id', 'shop_id', 'product_id', 'vendor_id']).dump(grocery)
+        grocery_json = GrocerySchema(exclude=['id']).dump(grocery)
         db_session.remove()
 
         if not grocery_json:
@@ -125,7 +163,7 @@ class GroceryResource(Resource):
 
     def _get_all_groceries(self):
         groceries = db_session.query(Grocery).all()
-        groceries_json = GrocerySchema(many=True).dump(groceries)
+        groceries_json = GrocerySchema(exclude=['id'], many=True).dump(groceries)
         db_session.remove()
 
         #logger.info("Players successfully retrieved.")

@@ -8,7 +8,7 @@ def test_get_all_groceries(client):
 def test_get_one_grocery(client):
     response = client.get(f"{GROCERY_ENDPOINT}/1")
     assert response.status_code == 200
-    assert len(response.json) == 7
+    assert len(response.json) == 10
     assert response.json["product.name"] == "Product1"
     assert response.json["shop.shop_name"] == "Test1"
     assert response.json["product.vendor.name"] == "Vendor1"
@@ -164,5 +164,110 @@ def test_post_one_grocery_price_None(client):
 def test_post_one_grocery_price_Empty(client):
     new_grocery_json = {"shop_id": "1", "vendor_id": "1", "product_id": "1", "date_bought": "2021-08-30", "weight_in_pounds": "1", "quantity": "1", "price": ""}
     response = client.post(f"{GROCERY_ENDPOINT}", json=new_grocery_json)
+    assert response.status_code == 500
+    assert response.json["message"]["price"] == ['Price field cannot be empty']
+
+def test_delete_one_grocery_by_id(client):
+    new_grocery_json = {"shop_id": "1", "vendor_id": "1", "product_id": "1", "date_bought": "2021-08-30", "weight_in_pounds": "1", "quantity": "1", "price": "2.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_grocery_json)
+    assert response.status_code == 201
+    response = client.delete(f"{GROCERY_ENDPOINT}/{response.json}")
+    assert response.status_code == 200
+
+def test_delete_one_grocery_id_not_found(client):
+    response = client.delete(f"{GROCERY_ENDPOINT}/10")
+    assert response.status_code == 404
+
+def test_put_by_grocery_id(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "5", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 200
+    response = client.get(f"{GROCERY_ENDPOINT}/{response.json}")
+    assert response.status_code == 200
+    assert response.json["product_id"] == 5
+    assert response.json["product.name"] == "Product1"
+    assert response.json["price"] == 3.99
+
+def test_put_by_grocery_id_nonexistent_vendor(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "3", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
+
+def test_put_by_grocery_id_product_wrong_vendor(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "1", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
+
+def test_put_by_grocery_id_nonexistent_product(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "10", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
+
+def test_put_by_grocery_id_wrong_product(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "3", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
+
+def test_put_by_grocery_id_nonexistent_shop(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "3", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"] == "Unexpected Error!"
+
+def test_put_by_grocery_id_shop_None(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": None, "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["shop_id"] == ['Field may not be null.']
+
+def test_put_by_grocery_id_shop_Empty(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "3.99"}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["shop_id"] == ['Shop field cannot be empty']
+
+def test_put_by_grocery_id_price_None(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": None}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["price"] == ['Field may not be null.']
+
+def test_put_by_grocery_id_price_Empty(client):
+    new_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": "4.99"}
+    response = client.post(f"{GROCERY_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 201
+    update_product_json = {"shop_id": "1", "vendor_id": "2", "product_id": "4", "date_bought": "2021-07-30", "weight_in_pounds": "1", "quantity": "1", "price": ""}
+    response = client.put(f"{GROCERY_ENDPOINT}/{response.json}", json=update_product_json)
     assert response.status_code == 500
     assert response.json["message"]["price"] == ['Price field cannot be empty']
