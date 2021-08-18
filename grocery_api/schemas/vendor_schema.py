@@ -17,5 +17,5 @@ class VendorSchema(Schema):
 
     @validates_schema
     def validate_vendor_name(self, data, **kwargs):
-        if data["name"] in [""] :
+        if (not "name" in data) or (data["name"] in [""]) :
             raise ValidationError({"name": ["Vendor Name cannot be empty"]})

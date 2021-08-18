@@ -15,7 +15,7 @@ class ShopSchema(Schema):
 
     @validates_schema
     def validate_shop_fields(self, data, **kwargs):
-        if data["shop_name"] in [""] :
+        if (not "shop_name" in data) or (data["shop_name"] in [""]) :
             raise ValidationError({"shop_name": ["Shop Name cannot be empty"]})
-        if data["location"] in [""] :
+        if (not "location" in data) or (data["location"] in [""]) :
             raise ValidationError({"location": ["Location cannot be empty"]})

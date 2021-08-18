@@ -14,5 +14,5 @@ class ProductSchema(Schema):
 
     @validates_schema
     def validate_fields(self, data, **kwargs):
-        if data["name"] in [""] :
+        if (not "name" in data) or (data["name"] in [""]) :
             raise ValidationError({"name": ["Product Name cannot be empty"]})
