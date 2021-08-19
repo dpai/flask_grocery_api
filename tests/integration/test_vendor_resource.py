@@ -10,8 +10,16 @@ def test_get_one_vendor(client):
     assert response.status_code == 200
     assert len(response.json) == 3
     assert response.json["name"] == "Vendor1"
-    assert len(response.json["products"]) == 4
-    assert response.json["products"] == ["Product1", "Product2", "Product3", "Product21"]
+    assert len(response.json["products"]) == 3
+    assert response.json["products"] == ["Product1", "Product2", "Product3"]
+
+def test_get_one_vendor_by_name(client):
+    response = client.get(f"{VENDOR_ENDPOINT}/Vendor1")
+    assert response.status_code == 200
+    assert len(response.json) == 3
+    assert response.json["name"] == "Vendor1"
+    assert len(response.json["products"]) == 3
+    assert response.json["products"] == ["Product1", "Product2", "Product3"]
 
 def test_post_one_vendor(client):
     new_vendor_json = {"name": "Vendor3"}

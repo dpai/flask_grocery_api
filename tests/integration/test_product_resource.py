@@ -117,6 +117,8 @@ def test_put_by_product_id(client):
     assert response.status_code == 200
     assert response.json["name"] == "Product21"
     assert response.json["vendor_id"] == 1
+    response = client.delete(f"{PRODUCT_ENDPOINT}/9")
+    assert response.status_code == 200
 
 def test_put_by_product_id_no_vendor(client):
     new_product_json = {"name": "Product30", "vendor_id": "2", "id": "10"}
