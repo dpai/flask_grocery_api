@@ -16,3 +16,5 @@ class ProductSchema(Schema):
     def validate_fields(self, data, **kwargs):
         if (not "name" in data) or (data["name"] in [""]) :
             raise ValidationError({"name": ["Product Name cannot be empty"]})
+        if (not "vendor_id" in data) or (data["vendor_id"] in [""]) :
+            raise ValidationError({"vendor_id": ["Vendor cannot be empty"]})

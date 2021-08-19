@@ -13,6 +13,30 @@ def test_get_one_product(client):
     assert response.json["vendor_id"] == 1
     assert response.json["vendor.name"] == "Vendor1"
 
+def test_get_all_by_product_name(client):
+    response = client.get(f"{PRODUCT_ENDPOINT}/Product1")
+    assert response.status_code == 200
+    assert len(response.json) == 2
+
+def test_get_one_by_product_name_filter_vendor(client):
+    response = client.get(f"{PRODUCT_ENDPOINT}/Product1", query_string={"vendor_name": "Vendor1"})
+    assert response.status_code == 200
+    assert response.json["name"] == "Product1"
+    assert response.json["vendor_id"] == 1
+    assert response.json["vendor.name"] == "Vendor1"
+
+def test_get_product_not_found(client):
+    response = client.get(f"{PRODUCT_ENDPOINT}/100")
+    assert response.status_code == 404
+
+def test_get_product_name_not_found(client):
+    response = client.get(f"{PRODUCT_ENDPOINT}/Product100")
+    assert response.status_code == 404
+
+def test_get_product_name_filter_vendor_not_valid(client):
+    response = client.get(f"{PRODUCT_ENDPOINT}/Product1", query_string={"vendor_name": "Vendor4"})
+    assert response.status_code == 404
+
 def test_post_one_product(client):
     new_product_json = {"name": "Product5", "vendor_id": "2", "id": "6"}
     response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
@@ -30,6 +54,30 @@ def test_post_one_product_nonexistent_vendor(client):
     response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
     assert response.status_code == 500
     assert response.json["message"] == "Unexpected Error!"
+
+def test_post_one_product_name_None(client):
+    new_product_json = {"name": None, "vendor_id": "2", "id": "6"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["name"] == ['Field may not be null.']
+
+def test_post_one_product_name_field_missing(client):
+    new_product_json = {"vendor_id": "2", "id": "6"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["name"] == ["Product Name cannot be empty"]
+
+def test_post_one_product_empty_vendor(client):
+    new_product_json = {"name": "Product6", "vendor_id": "", "id": "6"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["vendor_id"] == ["Vendor cannot be empty"]
+
+def test_post_one_product_missing_vendor(client):
+    new_product_json = {"name": "Product6", "vendor_id": "", "id": "6"}
+    response = client.post(f"{PRODUCT_ENDPOINT}", json=new_product_json)
+    assert response.status_code == 500
+    assert response.json["message"]["vendor_id"] == ["Vendor cannot be empty"]
 
 def test_delete_one_product_by_id(client):
     new_product_json = {"name": "Product7", "vendor_id": "2", "id": "7"}
