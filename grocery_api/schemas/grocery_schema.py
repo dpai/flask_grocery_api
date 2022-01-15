@@ -3,8 +3,8 @@ from grocery_api.models import grocery
 
 class GrocerySchema(Schema):
     """
-    Player Marshmallow Schema
-    Marshmallow schema used for loading/dumping Players
+    Grocery Marshmallow Schema
+    Marshmallow schema used for loading/dumping Groceries
     """
     class Meta:
         fields = ('id', 'product_id', 'product.name', 'vendor_id', 'product.vendor.name', 'shop_id', 'shop.shop_name', 'price', 'weight_in_pounds', 'date_bought', 'quantity')
