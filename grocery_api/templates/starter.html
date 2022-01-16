@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card card-warning">
+          <div class="card-header">
+            <h3 class="card-title">Compare Product Prices</h3>
+          </div>
+          <!-- /.card-header -->
+          <script>
+            function callREST() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("response").innerHTML = this.responseText;
+                    }
+                };
+                url = "api/v1/groceries/" + document.getElementById("product").value
+                xhttp.open("GET", url, true);
+                xhttp.send();
+            }
+          </script>
+          <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <!-- select -->
+                  <div class="form-group">
+                    <label>Select Product Name</label>
+                    <select class="form-control" id="product">
+                      {% if products %}
+                          {% for key in products %}
+                              <option>{{key}}</option>
+                          {% endfor %}
+                      {% else %}
+                              <option></option>
+                      {% endif %}
+                    </select>
+                  </div>
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-primary" onclick="callREST()">Submit</button>
+                  </div>
+                  <div id="response"></div>
+                </div>
+              </div>
+          </div>
+          <!-- /.card-body -->
+        </div>
+      </div>
+      <!-- /.col-md-6 -->
+       
+      <!-- /.col-md-6 -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+</div>
+{% endblock %}

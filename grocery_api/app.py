@@ -1,8 +1,9 @@
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+import datetime
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_restful import Api
 from grocery_api.database import db_session
 from grocery_api.resources.product_resource import ProductResource, ProductByNameResource, PRODUCT_ENDPOINT
@@ -29,5 +30,14 @@ def create_app(config_object=None):
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         db_session.remove()
+
+    @app.route('/app')
+    @app.route('/')
+    def hello():
+        ## Get all the products from the database and generate a list to consue for pywebio
+        
+        pydict = ProductResource().get()
+        product_list = {x['name']:x['id'] for x in pydict[0]}
+        return render_template('starter.html', products=product_list)
 
     return app
