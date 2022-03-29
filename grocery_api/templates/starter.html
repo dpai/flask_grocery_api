@@ -17,10 +17,15 @@
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
-                        document.getElementById("response").innerHTML = this.responseText;
+                        const payload = JSON.parse(this.response)
+                        payload.data.forEach((repo) => {
+                          console.log(repo.price);
+                        });
+                        //document.getElementById("response").innerHTML = 
+                        parse(JSON.parse(payload.plot), "response");
                     }
                 };
-                url = "api/v1/groceries/" + document.getElementById("product").value
+                url = "app/compareProduct/" + document.getElementById("product").value
                 xhttp.open("GET", url, true);
                 xhttp.send();
             }
@@ -44,7 +49,20 @@
                   <div class="card-footer">
                     <button type="submit" class="btn btn-primary" onclick="callREST()">Submit</button>
                   </div>
-                  <div id="response"></div>
+                  <!-- Altair plot placeholder -->
+                  <div class="row">
+                      <div id="response"></div>
+                  </div>
+                  <div class="row">
+                      <!-- Placeholder for the global-cases plot-->
+                      <div id="global-cases"></div>
+                  <hr>
+                  <div class="row">
+                      <!-- Placeholder for global-time series -->
+                      <div id="global-time"></div>
+                  </div>
+                  <!-- Placeholder for the tooltip -->
+                  <div id="vis-tooltip" class="vg-tooltip"></div>
                 </div>
               </div>
           </div>
@@ -58,4 +76,18 @@
     <!-- /.row -->
   </div><!-- /.container-fluid -->
 </div>
+<!-- Render Charts -->
+<script type="text/javascript">
+  function parse(url, div) {
+      var opt = {
+          mode: "vega-lite",
+          renderer: "svg",
+          actions: { export: true, source: false, editor: false }
+      };
+      vegaEmbed("#" + div, url, opt, function (error, result) {
+          // result.view is the Vega View, url is the original Vega-Lite specification
+          vegaTooltip.vegaLite(result.view, url);
+      });
+  }
+</script>
 {% endblock %}
