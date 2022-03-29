@@ -9,6 +9,7 @@ flask-sqlalchemy = "*"
 pymysql = "*"
 flask-restful = "*"
 marshmallow = "*"
+greenlet = "*"
 
 [dev-packages]
 pytest = "*"
