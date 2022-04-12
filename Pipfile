@@ -5,16 +5,20 @@ name = "pypi"
 
 [packages]
 flask = "*"
-flask-sqlalchemy = "*"
+sqlalchemy = "*"
 pymysql = "*"
 flask-restful = "*"
 marshmallow = "*"
 greenlet = "*"
+altair = "*"
+vega-datasets = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-sugar = "*"
 pytest-cov = "*"
+ipykernel = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"

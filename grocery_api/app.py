@@ -1,9 +1,12 @@
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-import datetime
 
-from flask import Flask, render_template
+import datetime
+import pandas as pd
+import altair as alt
+
+from flask import Flask, render_template, jsonify
 from flask_restful import Api
 from grocery_api.database import db_session
 from grocery_api.resources.product_resource import ProductResource, ProductByNameResource, PRODUCT_ENDPOINT
@@ -39,5 +42,54 @@ def create_app(config_object=None):
         pydict = ProductResource().get()
         product_list = {x['name']:x['id'] for x in pydict[0]}
         return render_template('starter.html', products=product_list)
+
+    @app.route('/app/compareProduct/<product_name>', methods=['GET'])
+    def compareProduct(product_name):
+        pydict = GroceryByProductNameResource().get(product_name)
+
+        product_df = pd.DataFrame(pydict[0])
+        product_df.rename(columns={"shop.shop_name":"shop"}, inplace = True)
+        product_df['price_per_pound'] = round(product_df['price']/product_df['weight_in_pounds'], 2)
+
+        # Create a selection that chooses the nearest point & selects based on x-value
+        nearest = alt.selection(type='single', nearest=True, on='mouseover',
+                        fields=['date_bought'], empty='none')
+
+        lines = (
+            alt.Chart(product_df)
+            .mark_line(point=True)
+            .encode(x="date_bought", y="price_per_pound", color="shop")
+        )
+
+        # Transparent selectors across the chart. This is what tells us
+        # the x-value of the cursor
+        selectors = alt.Chart(product_df).mark_point().encode(
+            x='date_bought:O',
+            opacity=alt.value(0),
+        ).add_selection(
+            nearest
+        )
+
+        # Draw points on the line, and highlight based on selection
+        points = lines.mark_point().encode(
+            opacity=alt.condition(nearest, alt.value(1), alt.value(0))
+        )
+
+        # Draw text labels near the points, and highlight based on selection
+        text = lines.mark_text(align='left', dx=5, dy=-5).encode(
+            text=alt.condition(nearest, 'price_per_pound:Q', alt.value(' '))
+        )
+
+        # Put the five layers into a chart and bind the data
+        chart = alt.layer(
+            lines, selectors, points, text
+        ).properties(
+            width=450, height=500
+        )
+        chart_json = chart.to_json()
+
+        payload = { "data": pydict[0], "plot": chart_json}
+
+        return payload
 
     return app
