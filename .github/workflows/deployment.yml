@@ -1,27 +1,40 @@
 name: Continuous Deployment
 
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches:
-      - main
+    branches: [ main ]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  # This workflow contains a single job called "build"
   deployment:
     runs-on: self-hosted
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout main branch
-        uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      # Set up Python
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
         with:
-          node-version: '14.x'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Test application
-        run: npm test
-
-      - name: Build application
-        run: npm run build
+          python-version: 3.8
+      # Install Pipenv
+      - name: Install pipenv
+        run: pip install pipenv
+      # Install Dev Packages
+      - name: Install Dev Packages
+        run: pipenv install --dev
+      # Load Test Database
+      - name: Load Test Database
+        run: pipenv run python tests/loadtestdatabase.py
+      # Run Tests
+      - name: Run tests
+        run: |
+          pipenv run pytest
+          
