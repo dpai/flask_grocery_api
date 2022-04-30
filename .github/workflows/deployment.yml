@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
       # Install Dev Packages
       - name: Install Dev Packages
-        run: pipenv install --dev
+        run: ~/.local/bin/pipenv install --dev
       # Load Test Database
       - name: Load Test Database
         run: pipenv run python tests/loadtestdatabase.py
