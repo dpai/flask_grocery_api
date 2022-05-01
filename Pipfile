@@ -12,6 +12,7 @@ marshmallow = "*"
 greenlet = "*"
 altair = "*"
 vega-datasets = "*"
+cryptography = "*"
 
 [dev-packages]
 pytest = "*"
