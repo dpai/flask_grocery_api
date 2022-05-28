@@ -1,4 +1,4 @@
-#import logging
+import logging
 
 from flask_restful import Resource, abort, request
 from marshmallow.exceptions import ValidationError
@@ -10,7 +10,7 @@ from grocery_api.schemas.product_schema import ProductSchema
 from grocery_api.database import db_session
 
 PRODUCT_ENDPOINT = "/api/v1/products"
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythonLogger')
 
 class ProductByNameResource(Resource):
     def get(self, product_name):
@@ -32,7 +32,7 @@ class ProductByNameResource(Resource):
             else:
                 abort(404, message=f"Product {product_name} not found")
         
-        #logger.info(f"Product retrieved from database {product_json}")
+        logger.info(f"Product retrieved from database {products_json}")
         return products_json, 200
     
     def delete(self, product_name):
@@ -48,7 +48,7 @@ class ProductByNameResource(Resource):
         except NoResultFound:
             abort(404, message=f"{product_name} not found")
         
-        #logger.info(f"product deleted from database {product_json}")
+        logger.info(f"product deleted from database {product_json}")
         return product_json, 200
 
     def _get_product_by_name(self, product_name, vendor_name):
@@ -86,13 +86,13 @@ class ProductResource(Resource):
         :return: Product, 200 HTTP status code
         """
         if not id:
-            # logger.info(
-            #     f"Retrieving all products"
-            # )
+            logger.info(
+                f"Retrieving all products"
+            )
 
             return self._get_all_products(), 200
 
-        #logger.info(f"Retrieving product by id {id}")
+        logger.info(f"Retrieving product by id {id}")
 
         try:
             return self._get_product_by_id(id), 200
@@ -113,9 +113,9 @@ class ProductResource(Resource):
             db_session.add(product)
             db_session.commit()
         except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, this team is already in the database. Error: {e}"
-            # )
+            logger.warning(
+                f"Integrity Error, this team is already in the database. Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
         else:
@@ -137,7 +137,7 @@ class ProductResource(Resource):
         except NoResultFound:
             abort(404, message=f"Product not found")
         
-        #logger.info(f"Shop deleted from database {shop_json}")
+        logger.info(f"Shop deleted from database {shop_json}")
         return product_json, 200
 
     def put(self, id=None):
@@ -164,9 +164,9 @@ class ProductResource(Resource):
         try:
             db_session.commit()
         except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, Constraints violated, Error: {e}"
-            # )
+            logger.warning(
+                f"Integrity Error, Constraints violated, Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
         else:
@@ -180,7 +180,7 @@ class ProductResource(Resource):
         if not product_json:
             raise NoResultFound()
 
-        #logger.info(f"Product retrieved from database {product_json}")
+        logger.info(f"Product retrieved from database {product_json}")
         return product_json
 
     def _get_all_products(self):
@@ -188,7 +188,7 @@ class ProductResource(Resource):
         products_json = ProductSchema(many=True).dump(products)
         db_session.remove()
 
-        #logger.info("Players successfully retrieved.")
+        logger.info("Players successfully retrieved.")
         return products_json
 
     def _delete_product_by_id(self, product_id):

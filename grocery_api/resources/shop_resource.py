@@ -1,4 +1,4 @@
-#import logging
+import logging
 
 from flask_restful import Resource, abort, request
 from marshmallow.exceptions import ValidationError
@@ -9,7 +9,7 @@ from grocery_api.schemas.shop_schema import ShopSchema
 from grocery_api.database import db_session
 
 SHOP_ENDPOINT = "/api/v1/shops"
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythonLogger')
 
 class ShopByNameResource(Resource):
     def get(self, shop_name):
@@ -25,7 +25,7 @@ class ShopByNameResource(Resource):
         except NoResultFound:
             abort(404, message=f"{shop_name} not found")
         
-        #logger.info(f"Shop retrieved from database {shop_json}")
+        logger.info(f"Shop retrieved from database {shop_json}")
         return shop_json, 200
 
     def delete(self, shop_name):
@@ -41,7 +41,7 @@ class ShopByNameResource(Resource):
         except NoResultFound:
             abort(404, message=f"{shop_name} not found")
         
-        #logger.info(f"Shop deleted from database {shop_json}")
+        logger.info(f"Shop deleted from database {shop_json}")
         return shop_json, 200
 
     def _delete_shop_by_name(self, shop_name):
@@ -74,13 +74,13 @@ class ShopResource(Resource):
         :return: Shop, 200 HTTP status code
         """
         if not id:
-            # logger.info(
-            #     f"Retrieving all shops"
-            # )
+            logger.info(
+                f"Retrieving all shops"
+            )
 
             return self._get_all_shops(), 200
 
-        #logger.info(f"Retrieving shop by id {id}")
+        logger.info(f"Retrieving shop by id {id}")
 
         try:
             return self._get_shop_by_id(id), 200
@@ -103,7 +103,7 @@ class ShopResource(Resource):
         except NoResultFound:
             abort(404, message=f"Shop not found")
         
-        #logger.info(f"Shop deleted from database {shop_json}")
+        logger.info(f"Shop deleted from database {shop_json}")
         return shop_json, 200
 
     def post(self):
@@ -120,9 +120,9 @@ class ShopResource(Resource):
             db_session.add(shop)
             db_session.commit()
         except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, this team is already in the database. Error: {e}"
-            # )
+            logger.warning(
+                f"Integrity Error, this team is already in the database. Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
         else:
@@ -152,9 +152,9 @@ class ShopResource(Resource):
         try:
             db_session.commit()
         except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, this team is already in the database. Error: {e}"
-            # )
+            logger.warning(
+                f"Integrity Error, this team is already in the database. Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
         else:
@@ -180,7 +180,7 @@ class ShopResource(Resource):
         if not shop_json:
             raise NoResultFound()
 
-        #logger.info(f"Shop retrieved from database {shop_json}")
+        logger.info(f"Shop retrieved from database {shop_json}")
         return shop_json
 
     def _get_all_shops(self):
@@ -188,5 +188,5 @@ class ShopResource(Resource):
         shops_json = ShopSchema(many=True).dump(shops)
         db_session.remove()
 
-        #logger.info("Shops successfully retrieved.")
+        logger.info("Shops successfully retrieved.")
         return shops_json

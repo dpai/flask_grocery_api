@@ -1,4 +1,4 @@
-#import logging
+import logging
 
 from flask_restful import Resource, abort, request
 from marshmallow.exceptions import ValidationError
@@ -11,7 +11,7 @@ from grocery_api.database import db_session
 
 
 VENDOR_ENDPOINT = "/api/v1/vendors"
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythonLogger')
 
 class VendorByNameResource(Resource):
     def get(self, vendor_name):
@@ -33,7 +33,7 @@ class VendorByNameResource(Resource):
             else:
                 abort(404, message=f"Vendor {vendor_name} not found")
         
-        #logger.info(f"Product retrieved from database {vendor_json}")
+        logger.info(f"Product retrieved from database {vendor_json}")
         return vendor_json, 200
 
     def delete(self, vendor_name):
@@ -49,7 +49,7 @@ class VendorByNameResource(Resource):
         except NoResultFound:
             abort(404, message=f"{vendor_name} not found")
         
-        #logger.info(f"Shop deleted from database {shop_json}")
+        logger.info(f"Shop deleted from database {vendor_json}")
         return vendor_json, 200
 
     def _get_vendor_by_name(self, vendor_name, product_name):
@@ -88,13 +88,13 @@ class VendorResource(Resource):
         :return: Product, 200 HTTP status code
         """
         if not id:
-            # logger.info(
-            #     f"Retrieving all products"
-            # )
+            logger.info(
+                f"Retrieving all products"
+            )
 
             return self._get_all_vendors(), 200
 
-        #logger.info(f"Retrieving product by id {id}")
+        logger.info(f"Retrieving product by id {id}")
 
         try:
             return self._get_vendor_by_id(id), 200
@@ -115,9 +115,9 @@ class VendorResource(Resource):
             db_session.add(vendor)
             db_session.commit()
         except IntegrityError as e:
-            #logger.warning(
-            #    f"Integrity Error, this team is already in the database. Error: {e}"
-            #)
+            logger.warning(
+               f"Integrity Error, this team is already in the database. Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
         else:
@@ -139,7 +139,7 @@ class VendorResource(Resource):
         except NoResultFound:
             abort(404, message=f"Vendor not found")
         
-        #logger.info(f"Shop deleted from database {shop_json}")
+        logger.info(f"Shop deleted from database {vendor_json}")
         return vendor_json, 200
 
     def put(self, id=None):
@@ -165,9 +165,9 @@ class VendorResource(Resource):
         try:
             db_session.commit()
         except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, this team is already in the database. Error: {e}"
-            # )
+            logger.warning(
+                f"Integrity Error, this team is already in the database. Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
         else:
@@ -181,7 +181,7 @@ class VendorResource(Resource):
         if not vendor_json:
             raise NoResultFound()
 
-        #logger.info(f"Product retrieved from database {product_json}")
+        logger.info(f"Product retrieved from database {vendor_json}")
         return vendor_json
 
     def _get_all_vendors(self):
@@ -189,7 +189,7 @@ class VendorResource(Resource):
         vendors_json = VendorSchema(many=True).dump(vendors)
         db_session.remove()
 
-        #logger.info("Vendors successfully retrieved.")
+        logger.info("Vendors successfully retrieved.")
         return vendors_json
 
     def _delete_vendor_by_id(self, vendor_id):
@@ -203,9 +203,9 @@ class VendorResource(Resource):
         try:
             db_session.commit()
         except IntegrityError as e:
-            # logger.warning(
-            #     f"Integrity Error, Cannot Delete. Error: {e}"
-            # )
+            logger.warning(
+                f"Integrity Error, Cannot Delete. Error: {e}"
+            )
 
             abort(500, message="Unexpected Error!")
 

@@ -1,3 +1,5 @@
+import logging
+
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -14,10 +16,14 @@ from grocery_api.resources.vendor_resource import VendorResource, VendorByNameRe
 from grocery_api.resources.shop_resource import ShopResource, ShopByNameResource, SHOP_ENDPOINT
 from grocery_api.resources.grocery_resource import GroceryResource, GroceryByProductNameResource, GROCERY_ENDPOINT
 
+logger = logging.getLogger('pythonLogger')
+
 def create_app(config_object=None):
     # Init app
     app = Flask(__name__)
     app.config.from_object(config_object)
+
+    logger.info(config_object)
 
     api = Api(app)
 
