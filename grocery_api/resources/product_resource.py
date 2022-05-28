@@ -137,7 +137,7 @@ class ProductResource(Resource):
         except NoResultFound:
             abort(404, message=f"Product not found")
         
-        logger.info(f"Shop deleted from database {shop_json}")
+        logger.info(f"Shop deleted from database {product_json}")
         return product_json, 200
 
     def put(self, id=None):
