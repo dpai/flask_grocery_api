@@ -13,6 +13,7 @@ greenlet = "*"
 altair = "*"
 vega-datasets = "*"
 cryptography = "*"
+python-dotenv = "*"
 
 [dev-packages]
 pytest = "*"

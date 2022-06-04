@@ -1,3 +1,4 @@
 secrets1.py
 .vscode/*
 Pipfile.lock
+.env

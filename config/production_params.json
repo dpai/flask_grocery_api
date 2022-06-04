@@ -1,0 +1,6 @@
+
+{
+    "ID": "Production",
+    "FLASK_CONFIG": "config.ProductionConfig",
+    "LOGGER_CONFIG": "config/logger.conf"
+}

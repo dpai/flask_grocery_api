@@ -1,3 +1,4 @@
+import os
 import json
 import secrets1
 
@@ -20,5 +21,6 @@ def generate_database_string():
                      f'{secrets1.dbpass}@' \
                      f'{run_conf_data["DB_SERVER"]}/' \
                      f'{run_conf_data["DB_NAME"]}'
-
+    elif run_conf_data["ID"] == "Production":
+        db_con_str = secrets1.dburi
     return db_con_str

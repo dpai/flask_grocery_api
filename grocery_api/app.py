@@ -22,6 +22,7 @@ def create_app(config_object=None):
     # Init app
     app = Flask(__name__)
     app.config.from_object(config_object)
+    app.config.from_pyfile('../secrets1.py')
 
     logger.info(config_object)
 

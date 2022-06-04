@@ -36,7 +36,6 @@ from grocery_api.app import create_app
 application = create_app(
     config_object=run_config.run_conf_data['FLASK_CONFIG'])
 
-
 if __name__ == '__main__':
     try:
         application.run()
