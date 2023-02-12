@@ -188,7 +188,7 @@ class ProductResource(Resource):
         products_json = ProductSchema(many=True).dump(products)
         db_session.remove()
 
-        logger.info("Players successfully retrieved.")
+        logger.info("Products successfully retrieved.")
         return products_json
 
     def _delete_product_by_id(self, product_id):
