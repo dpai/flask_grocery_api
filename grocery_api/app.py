@@ -7,8 +7,12 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 import datetime
 import pandas as pd
 import altair as alt
+import time
+import cv2
+import os
+import numpy as np
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, Response
 from flask_restful import Api
 from grocery_api.database import db_session
 from grocery_api.resources.product_resource import ProductResource, ProductByNameResource, PRODUCT_ENDPOINT
@@ -16,7 +20,26 @@ from grocery_api.resources.vendor_resource import VendorResource, VendorByNameRe
 from grocery_api.resources.shop_resource import ShopResource, ShopByNameResource, SHOP_ENDPOINT
 from grocery_api.resources.grocery_resource import GroceryResource, GroceryByProductNameResource, GROCERY_ENDPOINT
 
+from tensorflow.keras.models import Model, load_model
+
 logger = logging.getLogger('pythonLogger')
+
+# Helpers
+def checkPathExists(path):
+  if not os.path.exists(path):
+    logger.info(f"Cannot access path: {path}")
+    return False
+  else:
+    logger.info(f"Path {path} accessible")
+    return True
+  
+def load_currency_model():
+    if checkPathExists('full_model.h5'):
+        inference_model = load_model('full_model.h5')
+        return inference_model
+    else:
+        logger.info("Inference Model not found")
+        return None
 
 def create_app(config_object=None):
     # Init app
@@ -35,6 +58,11 @@ def create_app(config_object=None):
     api.add_resource(ShopByNameResource, SHOP_ENDPOINT, f"{SHOP_ENDPOINT}/<string:shop_name>")
     api.add_resource(GroceryResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<int:id>")
     api.add_resource(GroceryByProductNameResource, GROCERY_ENDPOINT, f"{GROCERY_ENDPOINT}/<string:product_name>")
+
+    inference_model = load_currency_model()
+    IMG_SIZE = (224, 224)
+    labels = ['100_1', '100_2', '10_1', '10_2', '1_1', '1_2', '20_1', '20_2', '2_1',
+       '2_2', '50_1', '50_2', '5_1', '5_2']
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
@@ -97,5 +125,38 @@ def create_app(config_object=None):
         payload = { "data": pydict[0], "plot": chart_json}
 
         return payload
+    
+    def gen():
+        """Video streaming generator function."""
+        cap = cv2.VideoCapture('video_usd.mp4')
 
+        # Read until video is completed
+        while(cap.isOpened()):
+        # Capture frame-by-frame
+            ret, img = cap.read()
+            if ret == True:
+                img_resize = cv2.resize(img, (IMG_SIZE[0], IMG_SIZE[1])) 
+                time.sleep(1.0/60)
+                img_input = np.array([img_resize/255.0])
+                y_pred = inference_model.predict(img_input)
+                predictions = np.argmax(y_pred, axis=1)
+                predicted_denominations = labels[int(predictions)]
+                logger.info(f"{predicted_denominations.split('_')[0]} Dollars")
+                cv2.putText(img_resize, f"{predicted_denominations.split('_')[0]} Dollars", (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 2)
+                frame = cv2.imencode('.jpg', img_resize)[1].tobytes()
+                yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+            else: 
+                break
+        
+    @app.route('/video_feed')
+    def video_feed():
+        """Video streaming route. Put this in the src attribute of an img tag."""
+        return Response(gen(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    @app.route('/usd_detect')
+    def detect():
+        return render_template('vfeed.html')
+    
     return app

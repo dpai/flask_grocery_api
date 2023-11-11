@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card card-warning">
+          <div class="card-header">
+            <h3 class="card-title">USD Denomination Detection</h3>
+          </div>
+          <!-- /.card-header -->
+          <script>
+            function callREST() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        const payload = JSON.parse(this.response)
+                        payload.data.forEach((repo) => {
+                          console.log(repo.price);
+                        });
+                        //document.getElementById("response").innerHTML = 
+                        parse(JSON.parse(payload.plot), "response");
+                    }
+                };
+                url = "app/compareProduct/" + document.getElementById("product").value
+                xhttp.open("GET", url, true);
+                xhttp.send();
+            }
+          </script>
+          <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <!-- select -->
+                  <h1>Streaming </h1>
+                  <img src="{{ url_for('video_feed') }}">
+                  <!-- Altair plot placeholder -->
+                  <div class="row">
+                      <div id="response"></div>
+                  </div>
+                  <div class="row">
+                      <!-- Placeholder for the global-cases plot-->
+                      <div id="global-cases"></div>
+                  <hr>
+                  <div class="row">
+                      <!-- Placeholder for global-time series -->
+                      <div id="global-time"></div>
+                  </div>
+                  <!-- Placeholder for the tooltip -->
+                  <div id="vis-tooltip" class="vg-tooltip"></div>
+                </div>
+              </div>
+          </div>
+          <!-- /.card-body -->
+        </div>
+      </div>
+      <!-- /.col-md-6 -->
+       
+      <!-- /.col-md-6 -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+</div>
+<!-- Render Charts -->
+<script type="text/javascript">
+  function parse(url, div) {
+      var opt = {
+          mode: "vega-lite",
+          renderer: "svg",
+          actions: { export: true, source: false, editor: false }
+      };
+      vegaEmbed("#" + div, url, opt, function (error, result) {
+          // result.view is the Vega View, url is the original Vega-Lite specification
+          vegaTooltip.vegaLite(result.view, url);
+      });
+  }
+</script>
+{% endblock %}

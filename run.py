@@ -38,7 +38,7 @@ application = create_app(
 
 if __name__ == '__main__':
     try:
-        application.run()
+        application.run(host="0.0.0.0")
     except RuntimeError as err:
         log.error(str(err))
         exit(1)
