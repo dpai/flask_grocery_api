@@ -58,7 +58,7 @@ def create_app(config_object=None):
         product_df['price_per_pound'] = round(product_df['price']/product_df['quantity']/product_df['weight_in_pounds'], 2)
 
         # Create a selection that chooses the nearest point & selects based on x-value
-        nearest = alt.selection_point(nearest=True, on='mouseover', fields=['date_bought'])
+        nearest = alt.selection_point(nearest=True, on='mouseover', fields=['date_bought'], value=' ')
 
         lines = (
             alt.Chart()
