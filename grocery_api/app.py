@@ -58,21 +58,20 @@ def create_app(config_object=None):
         product_df['price_per_pound'] = round(product_df['price']/product_df['quantity']/product_df['weight_in_pounds'], 2)
 
         # Create a selection that chooses the nearest point & selects based on x-value
-        nearest = alt.selection(type='single', nearest=True, on='mouseover',
-                        fields=['date_bought'], empty='none')
+        nearest = alt.selection_point(nearest=True, on='mouseover', fields=['date_bought'])
 
         lines = (
-            alt.Chart(product_df)
+            alt.Chart()
             .mark_line(point=True)
             .encode(x="date_bought", y="price_per_pound", color="shop")
         )
 
         # Transparent selectors across the chart. This is what tells us
         # the x-value of the cursor
-        selectors = alt.Chart(product_df).mark_point().encode(
+        selectors = alt.Chart().mark_point().encode(
             x='date_bought:O',
             opacity=alt.value(0),
-        ).add_selection(
+        ).add_params(
             nearest
         )
 
@@ -88,7 +87,7 @@ def create_app(config_object=None):
 
         # Put the five layers into a chart and bind the data
         chart = alt.layer(
-            lines, selectors, points, text
+            lines, selectors, points, text, data=product_df
         ).properties(
             width=450, height=500
         )
