@@ -9,7 +9,7 @@ import logging.config
 # # Global Variable Initialization - END
 
 # # Main
-sys.path.append('./grocery_api') ## I put this so that json flask_config params [Line 31- create_app]does not need it.
+sys.path.append('./grocery_api') ## I put this so that json flask_config params [Line 34- create_app]does not need it.
 
 if len(sys.argv) != 2:
     run_config_file = Path('config/') / run_config.DEVELOPMENT_PARAM_FILE
@@ -32,9 +32,7 @@ db_con_str = run_config.generate_database_string()
 os.environ['DATABASE_URI'] = db_con_str
 
 from grocery_api.app import create_app
-
-application = create_app(
-    config_object=run_config.run_conf_data['FLASK_CONFIG'])
+application = create_app(config_object=run_config.run_conf_data['FLASK_CONFIG'])
 
 if __name__ == '__main__':
     try:
