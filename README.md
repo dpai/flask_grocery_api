@@ -14,3 +14,19 @@ Secondary goals:
 - Practice TDD
 
 
+# Building the app
+Building the app is straightforward. There should be Python installed on the system and the pipenv package for Python.
+Note: Sometimes on Windows the pipenv executable is not found because it was not included in the PATH. This should be added manually.
+
+Checkout the source. Open a `pipenv shell` and do a `pipenv install`. This will install all the needed dependencies.
+For running the tests development packaged need to be installed. Add the `--dev` option to the install command above to install the development packages
+
+# Running the test
+Open a pipenv shell
+First a temporary database needs to be generated. 
+For the test environment build an sqlite database by running the following command under the tests folder - `python -m loadtestdatabase`
+Then issue the command `pytest` to execute the tests.
+
+# Deploying the app
+TODO
+
